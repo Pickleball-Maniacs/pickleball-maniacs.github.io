@@ -23,7 +23,7 @@ body {
 header {
     background: #0d0d0d;
     color: white;
-    padding: 25px 0;
+    padding: 20px 0;
     border-bottom: 5px solid #e00000;
 }
 
@@ -35,13 +35,14 @@ header {
 .brand {
     display: flex;
     align-items: center;
-    gap: 18px;
+    gap: 15px;
 }
 
 .brand img {
-    width: 85px;
-    height: 85px;
+    width: 55px;
+    height: 55px;
     object-fit: contain;
+    flex-shrink: 0;
 }
 
 header h1 {
@@ -177,16 +178,16 @@ footer p:first-child {
 @media (max-width: 700px) {
 
     header {
-        padding: 20px 0;
+        padding: 15px 0;
     }
 
     .brand {
-        gap: 12px;
+        gap: 10px;
     }
 
     .brand img {
-        width: 65px;
-        height: 65px;
+        width: 45px;
+        height: 45px;
     }
 
     header h1 {
