@@ -212,7 +212,13 @@ function escapeHTML(value) {
 // Temporary Join Game button
 function joinGame() {
 
-    alert("Join Game will be available next!");
+    const playerName = prompt("Enter your name:");
+
+    if (!playerName) {
+        return;
+    }
+
+    alert(`Thanks ${playerName}! Join Game will be connected next.`);
 
 }
 
