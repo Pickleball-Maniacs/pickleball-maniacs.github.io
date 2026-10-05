@@ -305,9 +305,10 @@ async function joinGame() {
                     "Content-Type": "text/plain"
                 },
                 body: JSON.stringify({
-                    gameId: gameId,
-                    playerName: cleanName
-                })
+    action: "join",
+    gameId: gameId,
+    playerName: cleanName
+})
             }
         );
 
