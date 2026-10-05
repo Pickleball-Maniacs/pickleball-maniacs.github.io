@@ -210,7 +210,7 @@ function escapeHTML(value) {
 
 
 // Temporary Join Game button
-function joinGame() {
+async function joinGame() {
 
     const playerName = prompt("Enter your name:");
 
@@ -218,7 +218,37 @@ function joinGame() {
         return;
     }
 
-    alert(`Thanks ${playerName}! Join Game will be connected next.`);
+    const urlParams = new URLSearchParams(window.location.search);
+    const gameId = urlParams.get("id");
+
+    try {
+
+        await fetch(
+            "https://script.google.com/macros/s/AKfycbxYU0E7_glbCWqq_JEvK3GwsuFmblbUPzGSQMTDC1n3b-IrBg41y3WweCLguUNAj0Hmag/exec",
+            {
+                method: "POST",
+                mode: "no-cors",
+                headers: {
+                    "Content-Type": "text/plain"
+                },
+                body: JSON.stringify({
+                    gameId: gameId,
+                    playerName: playerName.trim()
+                })
+            }
+        );
+
+        alert(`Thanks ${playerName}! You joined the game.`);
+
+        loadGameDetails();
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert("Unable to join the game right now.");
+
+    }
 
 }
 
