@@ -1,9 +1,12 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Pickleball Maniacs</title>
+
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -13,11 +16,20 @@
         <div class="container header-content">
 
             <div class="brand">
-                <img src="PM-No-BG-Logo.png" alt="Pickleball Maniacs Logo">
+
+                <img
+                    src="PM-No-BG-Logo.png"
+                    alt="Pickleball Maniacs Logo"
+                >
 
                 <div>
+
                     <h1>Pickleball Maniacs</h1>
-                    <p>Our games, courts, and community.</p>
+
+                    <p>
+                        Our games, courts, and community.
+                    </p>
+
                 </div>
 
             </div>
@@ -28,25 +40,202 @@
 
     <main class="container">
 
+
+        <!-- Hero -->
+
         <section class="hero">
-            <h2>Upcoming Games</h2>
-            <p>See where and when we're playing.</p>
+
+            <h2>
+                Upcoming Games
+            </h2>
+
+            <p>
+                See where and when we're playing.
+            </p>
+
+
+            <button
+                type="button"
+                onclick="showScheduleForm()"
+            >
+                ➕ Add Schedule
+            </button>
+
         </section>
 
 
-        <!-- Games will be loaded from Google Sheets -->
+        <!-- Add Schedule Form -->
 
-        <section class="games" id="games">
-            <p>Loading upcoming games...</p>
+        <section
+            id="schedule-form"
+            style="display: none;"
+        >
+
+            <article class="game-card">
+
+                <div class="game-info">
+
+                    <h3>
+                        Add Schedule
+                    </h3>
+
+
+                    <p>
+                        Enter the details of the booked game.
+                    </p>
+
+
+                    <form
+                        id="add-schedule-form"
+                        onsubmit="submitSchedule(event)"
+                    >
+
+
+                        <p>
+                            <label for="schedule-date">
+                                📅 Date
+                            </label>
+
+                            <input
+                                type="date"
+                                id="schedule-date"
+                                required
+                            >
+                        </p>
+
+
+                        <p>
+                            <label for="schedule-start">
+                                🕐 Start Time
+                            </label>
+
+                            <input
+                                type="time"
+                                id="schedule-start"
+                                required
+                            >
+                        </p>
+
+
+                        <p>
+                            <label for="schedule-end">
+                                🕐 End Time
+                            </label>
+
+                            <input
+                                type="time"
+                                id="schedule-end"
+                                required
+                            >
+                        </p>
+
+
+                        <p>
+                            <label for="schedule-game-name">
+                                🏓 Game Name
+                            </label>
+
+                            <input
+                                type="text"
+                                id="schedule-game-name"
+                                placeholder="Saturday Pickleball"
+                                required
+                            >
+                        </p>
+
+
+                        <p>
+                            <label for="schedule-venue">
+                                📍 Venue
+                            </label>
+
+                            <input
+                                type="text"
+                                id="schedule-venue"
+                                placeholder="PickleHub"
+                                required
+                            >
+                        </p>
+
+
+                        <p>
+                            <label for="schedule-address">
+                                🏠 Address
+                            </label>
+
+                            <input
+                                type="text"
+                                id="schedule-address"
+                                placeholder="Venue address"
+                                required
+                            >
+                        </p>
+
+
+                        <p>
+                            <label for="schedule-court">
+                                🏟️ Court
+                            </label>
+
+                            <input
+                                type="text"
+                                id="schedule-court"
+                                placeholder="Court 1"
+                                required
+                            >
+                        </p>
+
+
+                        <button
+                            type="submit"
+                        >
+                            Add Schedule
+                        </button>
+
+
+                        <button
+                            type="button"
+                            onclick="hideScheduleForm()"
+                        >
+                            Cancel
+                        </button>
+
+
+                    </form>
+
+                </div>
+
+            </article>
+
         </section>
+
+
+        <!-- Games -->
+
+        <section
+            class="games"
+            id="games"
+        >
+
+            <p>
+                Loading upcoming games...
+            </p>
+
+        </section>
+
 
     </main>
 
 
     <footer>
 
-        <p>🏓 Pickleball Maniacs</p>
-        <p>Community games • Courts • Players</p>
+        <p>
+            🏓 Pickleball Maniacs
+        </p>
+
+        <p>
+            Community games • Courts • Players
+        </p>
 
     </footer>
 
@@ -55,3 +244,4 @@
 
 </body>
 </html>
+```
