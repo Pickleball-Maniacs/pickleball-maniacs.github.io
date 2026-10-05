@@ -30,6 +30,14 @@ async function loadGames() {
                 court
             ] = game;
 
+            // Create the game's ending date/time
+            const gameEnd = parseDateTime(date, endTime);
+
+            // Hide games that have already finished
+            if (gameEnd && gameEnd <= new Date()) {
+                return;
+            }
+
             const gameDate = new Date(date);
 
             const day = gameDate.getDate();
@@ -89,6 +97,38 @@ async function loadGames() {
         gamesContainer.innerHTML =
             "<p>Unable to load games right now. Please try again later.</p>";
     }
+}
+
+
+// Convert Google Sheet date + time into a JavaScript Date
+function parseDateTime(dateString, timeString) {
+    const date = new Date(dateString);
+
+    if (isNaN(date.getTime())) {
+        return null;
+    }
+
+    const time = timeString.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+
+    if (!time) {
+        return null;
+    }
+
+    let hours = parseInt(time[1]);
+    const minutes = parseInt(time[2]);
+    const period = time[3].toUpperCase();
+
+    if (period === "PM" && hours !== 12) {
+        hours += 12;
+    }
+
+    if (period === "AM" && hours === 12) {
+        hours = 0;
+    }
+
+    date.setHours(hours, minutes, 0, 0);
+
+    return date;
 }
 
 
