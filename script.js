@@ -5,7 +5,7 @@ const playersSheetURL =
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vR97VZM4O7V0oOctE2u3wguWJYScpbN4xliRWULVFkSGQRev0uDVwpIEaEA28HXXMLJ8S7zBqWHGgpm/pub?gid=920055948&output=csv";
 
 const appsScriptURL =
-    "https://script.google.com/macros/s/AKfycbxYU0E7_glbCWqq_JEvK3GwsuFmblbUPzGSQMTDC1n3b-IrBg41y3WweCLguUNAj0Hmag/exec";
+    "https://script.google.com/macros/s/AKfycbwPWuv8SSwwZ6oQuo8_xar1jnP2YJHUrpls0lzk_2f7eSJZJD0HfW1cqdUQEfXVz-VxzA/exec";
 
 
 // ======================================
