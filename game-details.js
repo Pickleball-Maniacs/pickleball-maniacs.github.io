@@ -92,9 +92,9 @@ async function loadGameDetails() {
                     <p>🏟️ ${escapeHTML(court)}</p>
 
 
-                    <div class="players">
-                        👥 Player list coming soon
-                    </div>
+                    <div class="players" id="player-list">
+    👥 Loading players...
+</div>
 
 
                     <button onclick="joinGame()">
