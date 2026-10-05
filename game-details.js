@@ -1,4 +1,5 @@
 const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR97VZM4O7V0oOctE2u3wguWJYScpbN4xliRWULVFkSGQRev0uDVwpIEaEA28HXXMLJ8S7zBqWHGgpm/pub?output=csv";
+
 const playersSheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR97VZM4O7V0oOctE2u3wguWJYScpbN4xliRWULVFkSGQRev0uDVwpIEaEA28HXXMLJ8S7zBqWHGgpm/pub?gid=920055948&output=csv";
 
 
@@ -93,8 +94,8 @@ async function loadGameDetails() {
 
 
                     <div class="players" id="player-list">
-    👥 Loading players...
-</div>
+                        👥 Loading players...
+                    </div>
 
 
                     <button onclick="joinGame()">
@@ -108,6 +109,29 @@ async function loadGameDetails() {
         `;
 
 
+        // Load players for this game
+        const playerList = document.getElementById("player-list");
+
+        const players = await loadPlayers(gameIndex);
+
+
+        if (players.length === 0) {
+
+            playerList.innerHTML = "👥 No players yet.";
+
+        } else {
+
+            playerList.innerHTML = `
+                👥 Players (${players.length}):
+                <br>
+                ${players
+                    .map((name, index) => `${index + 1}. ${escapeHTML(name)}`)
+                    .join("<br>")}
+            `;
+
+        }
+
+
     } catch (error) {
 
         console.error(error);
@@ -119,6 +143,8 @@ async function loadGameDetails() {
 
 }
 
+
+// Load players from Google Sheets
 async function loadPlayers(gameId) {
 
     try {
@@ -133,11 +159,13 @@ async function loadPlayers(gameId) {
 
         const players = parseCSV(csvText);
 
+
         const gamePlayers = players
             .slice(1)
             .filter(player => String(player[0]) === String(gameId))
             .map(player => player[1])
             .filter(name => name);
+
 
         return gamePlayers;
 
@@ -226,6 +254,7 @@ function parseCSV(text) {
 
 
     return rows;
+
 }
 
 
@@ -242,17 +271,28 @@ function escapeHTML(value) {
 }
 
 
-// Temporary Join Game button
+// Join Game button
 async function joinGame() {
 
     const playerName = prompt("Enter your name:");
+
 
     if (!playerName) {
         return;
     }
 
+
+    const cleanName = playerName.trim();
+
+
+    if (!cleanName) {
+        return;
+    }
+
+
     const urlParams = new URLSearchParams(window.location.search);
     const gameId = urlParams.get("id");
+
 
     try {
 
@@ -266,14 +306,18 @@ async function joinGame() {
                 },
                 body: JSON.stringify({
                     gameId: gameId,
-                    playerName: playerName.trim()
+                    playerName: cleanName
                 })
             }
         );
 
-        alert(`Thanks ${playerName}! You joined the game.`);
 
+        alert(`Thanks ${cleanName}! You joined the game.`);
+
+
+        // Reload the game details and player list
         loadGameDetails();
+
 
     } catch (error) {
 
