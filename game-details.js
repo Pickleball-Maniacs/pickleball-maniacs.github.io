@@ -119,6 +119,38 @@ async function loadGameDetails() {
 
 }
 
+async function loadPlayers(gameId) {
+
+    try {
+
+        const response = await fetch(playersSheetURL);
+
+        if (!response.ok) {
+            throw new Error("Unable to load players.");
+        }
+
+        const csvText = await response.text();
+
+        const players = parseCSV(csvText);
+
+        const gamePlayers = players
+            .slice(1)
+            .filter(player => String(player[0]) === String(gameId))
+            .map(player => player[1])
+            .filter(name => name);
+
+        return gamePlayers;
+
+    } catch (error) {
+
+        console.error(error);
+
+        return [];
+
+    }
+
+}
+
 
 // CSV parser
 function parseCSV(text) {
