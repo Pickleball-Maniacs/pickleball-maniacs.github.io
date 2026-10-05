@@ -196,7 +196,7 @@ function escapeHTML(value) {
 
 // Temporary button for the next phase
 function viewGame(index) {
-    alert("Game details will be available soon!");
+    window.location.href = `game.html?id=${index}`;
 }
 
 
