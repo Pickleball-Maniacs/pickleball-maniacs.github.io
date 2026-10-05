@@ -1,7 +1,16 @@
-const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR97VZM4O7V0oOctE2u3wguWJYScpbN4xliRWULVFkSGQRev0uDVwpIEaEA28HXXMLJ8S7zBqWHGgpm/pub?output=csv";
+const sheetURL =
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vR97VZM4O7V0oOctE2u3wguWJYScpbN4xliRWULVFkSGQRev0uDVwpIEaEA28HXXMLJ8S7zBqWHGgpm/pub?output=csv";
 
-const playersSheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR97VZM4O7V0oOctE2u3wguWJYScpbN4xliRWULVFkSGQRev0uDVwpIEaEA28HXXMLJ8S7zBqWHGgpm/pub?gid=920055948&output=csv";
+const playersSheetURL =
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vR97VZM4O7V0oOctE2u3wguWJYScpbN4xliRWULVFkSGQRev0uDVwpIEaEA28HXXMLJ8S7zBqWHGgpm/pub?gid=920055948&output=csv";
 
+const appsScriptURL =
+    "https://script.google.com/macros/s/AKfycbxYU0E7_glbCWqq_JEvK3GwsuFmblbUPzGSQMTDC1n3b-IrBg41y3WweCLguUNAj0Hmag/exec";
+
+
+// ======================================
+// LOAD GAMES
+// ======================================
 
 async function loadGames() {
 
@@ -9,94 +18,108 @@ async function loadGames() {
 
     try {
 
-        // Load schedule
         const response = await fetch(sheetURL);
 
-        if (!response.ok) {
-            throw new Error("Unable to load schedule.");
-        }
-
         const csvText = await response.text();
-        const games = parseCSV(csvText);
 
+        const rows = parseCSV(csvText);
 
-        // Load players
         const playersResponse = await fetch(playersSheetURL);
 
-        if (!playersResponse.ok) {
-            throw new Error("Unable to load players.");
-        }
-
         const playersCSV = await playersResponse.text();
-        const players = parseCSV(playersCSV);
+
+        const playersRows = parseCSV(playersCSV);
 
 
         gamesContainer.innerHTML = "";
 
 
-        games.slice(1).forEach((game, index) => {
+        let upcomingGames = 0;
 
-            if (game.length < 7 || !game[0]) {
+
+        rows.slice(1).forEach((game, index) => {
+
+            if (game.length < 7) {
                 return;
             }
 
 
-            const [
-                date,
-                startTime,
-                endTime,
-                gameName,
-                venue,
-                address,
-                court
-            ] = game;
+            const date = game[0];
+            const startTime = game[1];
+            const endTime = game[2];
+            const gameName = game[3];
+            const venue = game[4];
+            const address = game[5];
+            const court = game[6];
 
 
-            // Create the game's ending date/time
-            const gameEnd = parseDateTime(date, endTime);
+            // ======================================
+            // CHECK IF GAME IS ALREADY FINISHED
+            // ======================================
 
+            const endDateTime = parseDateTime(date, endTime);
 
-            // Hide games that have already finished
-            if (gameEnd && gameEnd <= new Date()) {
+            if (endDateTime && endDateTime <= new Date()) {
                 return;
             }
 
 
-            const gameDate = new Date(date);
+            upcomingGames++;
 
 
-            const day = gameDate.getDate();
+            // ======================================
+            // COUNT PLAYERS
+            // ======================================
 
+            const gameId = index;
 
-            const month = gameDate.toLocaleDateString("en-US", {
-                month: "short"
-            }).toUpperCase();
-
-
-            const fullDate = gameDate.toLocaleDateString("en-US", {
-                weekday: "long",
-                month: "long",
-                day: "numeric",
-                year: "numeric"
-            });
-
-
-            // Count players for this game
-            const playerCount = players
+            const playerCount = playersRows
                 .slice(1)
-                .filter(player => String(player[0]) === String(index))
-                .filter(player => player[1])
+                .filter(player =>
+                    player[0] === String(gameId) &&
+                    player[1]
+                )
                 .length;
 
 
-            const playerText =
-                playerCount === 1
-                    ? "1 Player"
-                    : `${playerCount} Players`;
+            let playerText;
 
+            if (playerCount === 1) {
+                playerText = "👥 1 Player";
+            } else {
+                playerText = `👥 ${playerCount} Players`;
+            }
+
+
+            // ======================================
+            // DATE DISPLAY
+            // ======================================
+
+            const displayDate = new Date(date);
+
+            let dayNumber = "";
+            let monthName = "";
+
+
+            if (!isNaN(displayDate)) {
+
+                dayNumber = displayDate.getDate();
+
+                monthName = displayDate.toLocaleString(
+                    "en-US",
+                    {
+                        month: "short"
+                    }
+                );
+
+            }
+
+
+            // ======================================
+            // CREATE GAME CARD
+            // ======================================
 
             const card = document.createElement("article");
-
 
             card.className = "game-card";
 
@@ -105,38 +128,55 @@ async function loadGames() {
 
                 <div class="game-date">
 
-                    <strong>${day}</strong>
+                    <strong>
+                        ${escapeHTML(String(dayNumber))}
+                    </strong>
 
-                    <span>${month}</span>
+                    <span>
+                        ${escapeHTML(monthName)}
+                    </span>
 
                 </div>
 
 
                 <div class="game-info">
 
-                    <h3>${escapeHTML(gameName)}</h3>
+                    <h3>
+                        ${escapeHTML(gameName)}
+                    </h3>
 
-
-                    <p>📅 ${fullDate}</p>
 
                     <p>
                         🕐 ${escapeHTML(startTime)}
-                        – ${escapeHTML(endTime)}
+                        - ${escapeHTML(endTime)}
                     </p>
 
-                    <p>📍 ${escapeHTML(venue)}</p>
 
-                    <p>🏠 ${escapeHTML(address)}</p>
+                    <p>
+                        📍 ${escapeHTML(venue)}
+                    </p>
 
-                    <p>🏟️ ${escapeHTML(court)}</p>
+
+                    <p>
+                        🏠 ${escapeHTML(address)}
+                    </p>
+
+
+                    <p>
+                        🏟️ ${escapeHTML(court)}
+                    </p>
 
 
                     <div class="players">
-                        👥 ${playerText}
+
+                        ${playerText}
+
                     </div>
 
 
-                    <button onclick="viewGame(${index})">
+                    <button
+                        onclick="window.location.href='game.html?id=${gameId}'"
+                    >
                         View Game
                     </button>
 
@@ -150,74 +190,258 @@ async function loadGames() {
         });
 
 
-        if (gamesContainer.innerHTML === "") {
+        // ======================================
+        // NO UPCOMING GAMES
+        // ======================================
 
-            gamesContainer.innerHTML =
-                "<p>No upcoming games found.</p>";
+        if (upcomingGames === 0) {
+
+            gamesContainer.innerHTML = `
+
+                <p>
+                    No upcoming games scheduled.
+                </p>
+
+            `;
 
         }
 
 
     } catch (error) {
 
-        console.error(error);
+        console.error("Error loading games:", error);
 
+        gamesContainer.innerHTML = `
 
-        gamesContainer.innerHTML =
-            "<p>Unable to load games right now. Please try again later.</p>";
+            <p>
+                Unable to load games.
+            </p>
+
+        `;
 
     }
 
 }
 
 
-// Convert Google Sheet date + time into a JavaScript Date
-function parseDateTime(dateString, timeString) {
+// ======================================
+// SHOW ADD SCHEDULE FORM
+// ======================================
 
-    const date = new Date(dateString);
+function showScheduleForm() {
 
+    const form = document.getElementById("schedule-form");
 
-    if (isNaN(date.getTime())) {
-        return null;
+    if (!form) {
+        return;
     }
 
 
-    const time = timeString.match(
-        /(\d{1,2}):(\d{2})\s*(AM|PM)/i
-    );
+    form.style.display = "block";
 
 
-    if (!time) {
-        return null;
-    }
-
-
-    let hours = parseInt(time[1]);
-
-    const minutes = parseInt(time[2]);
-
-    const period = time[3].toUpperCase();
-
-
-    if (period === "PM" && hours !== 12) {
-        hours += 12;
-    }
-
-
-    if (period === "AM" && hours === 12) {
-        hours = 0;
-    }
-
-
-    date.setHours(hours, minutes, 0, 0);
-
-
-    return date;
+    form.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
 
 }
 
 
-// Simple CSV parser that supports commas inside fields
+// ======================================
+// HIDE ADD SCHEDULE FORM
+// ======================================
+
+function hideScheduleForm() {
+
+    const form = document.getElementById("schedule-form");
+
+    if (!form) {
+        return;
+    }
+
+
+    form.style.display = "none";
+
+}
+
+
+// ======================================
+// SUBMIT ADD SCHEDULE
+// ======================================
+
+async function submitSchedule(event) {
+
+    event.preventDefault();
+
+
+    const date =
+        document.getElementById("schedule-date").value;
+
+    const startTime =
+        document.getElementById("schedule-start").value;
+
+    const endTime =
+        document.getElementById("schedule-end").value;
+
+    const gameName =
+        document.getElementById("schedule-game-name").value.trim();
+
+    const venue =
+        document.getElementById("schedule-venue").value.trim();
+
+    const address =
+        document.getElementById("schedule-address").value.trim();
+
+    const court =
+        document.getElementById("schedule-court").value.trim();
+
+
+    // ======================================
+    // CHECK TIME
+    // ======================================
+
+    if (endTime <= startTime) {
+
+        alert("End time must be later than start time.");
+
+        return;
+
+    }
+
+
+    // ======================================
+    // SEND TO GOOGLE APPS SCRIPT
+    // ======================================
+
+    try {
+
+        await fetch(appsScriptURL, {
+
+            method: "POST",
+
+            mode: "no-cors",
+
+            headers: {
+                "Content-Type": "text/plain"
+            },
+
+            body: JSON.stringify({
+
+                action: "schedule",
+
+                date: date,
+
+                startTime: startTime,
+
+                endTime: endTime,
+
+                gameName: gameName,
+
+                venue: venue,
+
+                address: address,
+
+                court: court
+
+            })
+
+        });
+
+
+        alert("✅ Schedule added successfully!");
+
+
+        // Clear form
+
+        document
+            .getElementById("add-schedule-form")
+            .reset();
+
+
+        // Hide form
+
+        hideScheduleForm();
+
+
+        // Reload games
+
+        loadGames();
+
+
+    } catch (error) {
+
+        console.error("Error adding schedule:", error);
+
+        alert(
+            "❌ Something went wrong while adding the schedule."
+        );
+
+    }
+
+}
+
+
+// ======================================
+// PARSE DATE + TIME
+// ======================================
+
+function parseDateTime(dateValue, timeValue) {
+
+    const date = new Date(dateValue);
+
+    if (isNaN(date)) {
+        return null;
+    }
+
+
+    const timeParts = timeValue
+        .toLowerCase()
+        .match(/(\d+):(\d+)\s*(am|pm)/);
+
+
+    if (timeParts) {
+
+        let hours = parseInt(timeParts[1]);
+
+        const minutes = parseInt(timeParts[2]);
+
+        const ampm = timeParts[3];
+
+
+        if (ampm === "pm" && hours !== 12) {
+            hours += 12;
+        }
+
+
+        if (ampm === "am" && hours === 12) {
+            hours = 0;
+        }
+
+
+        date.setHours(hours);
+
+        date.setMinutes(minutes);
+
+        date.setSeconds(0);
+
+        date.setMilliseconds(0);
+
+
+        return date;
+
+    }
+
+
+    return null;
+
+}
+
+
+// ======================================
+// CSV PARSER
+// ======================================
+
 function parseCSV(text) {
 
     const rows = [];
@@ -236,11 +460,7 @@ function parseCSV(text) {
         const nextChar = text[i + 1];
 
 
-        if (
-            char === '"' &&
-            insideQuotes &&
-            nextChar === '"'
-        ) {
+        if (char === '"' && insideQuotes && nextChar === '"') {
 
             value += '"';
 
@@ -250,12 +470,9 @@ function parseCSV(text) {
 
             insideQuotes = !insideQuotes;
 
-        } else if (
-            char === "," &&
-            !insideQuotes
-        ) {
+        } else if (char === "," && !insideQuotes) {
 
-            row.push(value.trim());
+            row.push(value);
 
             value = "";
 
@@ -264,27 +481,13 @@ function parseCSV(text) {
             !insideQuotes
         ) {
 
-            if (
-                char === "\r" &&
-                nextChar === "\n"
-            ) {
+            if (value !== "" || row.length > 0) {
 
-                i++;
-
-            }
-
-
-            row.push(value.trim());
-
-
-            if (
-                row.some(cell => cell !== "")
-            ) {
+                row.push(value);
 
                 rows.push(row);
 
             }
-
 
             row = [];
 
@@ -299,21 +502,11 @@ function parseCSV(text) {
     }
 
 
-    if (
-        value !== "" ||
-        row.length > 0
-    ) {
+    if (value !== "" || row.length > 0) {
 
-        row.push(value.trim());
+        row.push(value);
 
-
-        if (
-            row.some(cell => cell !== "")
-        ) {
-
-            rows.push(row);
-
-        }
+        rows.push(row);
 
     }
 
@@ -323,32 +516,24 @@ function parseCSV(text) {
 }
 
 
-// Prevent HTML from being inserted directly into the page
+// ======================================
+// ESCAPE HTML
+// ======================================
+
 function escapeHTML(value) {
 
-    return String(value)
-
+    return value
         .replace(/&/g, "&amp;")
-
         .replace(/</g, "&lt;")
-
         .replace(/>/g, "&gt;")
-
         .replace(/"/g, "&quot;")
-
         .replace(/'/g, "&#039;");
 
 }
 
 
-// View Game
-function viewGame(index) {
+// ======================================
+// START
+// ======================================
 
-    window.location.href =
-        `game.html?id=${index}`;
-
-}
-
-
-// Load games when the page opens
 loadGames();
