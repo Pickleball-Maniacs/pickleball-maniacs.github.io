@@ -39,8 +39,8 @@ header {
 }
 
 .brand img {
-    width: 55px;
-    height: 55px;
+    width: 65px;
+    height: 65px;
     object-fit: contain;
     flex-shrink: 0;
 }
@@ -186,9 +186,9 @@ footer p:first-child {
     }
 
     .brand img {
-        width: 45px;
-        height: 45px;
-    }
+    width: 55px;
+    height: 55px;
+}
 
     header h1 {
         font-size: 24px;
